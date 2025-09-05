@@ -13,3 +13,9 @@ up: ## Start all services
 
 logs: ## Show logs
 	docker-compose logs --tail=30   
+
+lint: ## Run linter
+	golangci-lint run
+
+fmt: ##  Run fromatter
+	gofmt -w -s .	

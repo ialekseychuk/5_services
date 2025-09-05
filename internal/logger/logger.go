@@ -8,6 +8,6 @@ func NewLogger() *logrus.Logger {
 	logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
-	
+
 	return logger
 }

@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"strconv"
 	"time"
-
 )
 
 type ServiceConfig struct {
@@ -37,14 +36,9 @@ func LoadConfig() (*ServiceConfig, error) {
 			return cfg, fmt.Errorf("environment variable %s is not set", tag)
 		}
 
-		if field.Type() == durationType {
-	
-			
-		}
-
 		kind := field.Kind()
 
-		switch{
+		switch {
 		case reflect.String == kind:
 			field.SetString(envVal)
 
@@ -56,10 +50,9 @@ func LoadConfig() (*ServiceConfig, error) {
 					return cfg, fmt.Errorf("environment variable %s is not a valid duration: %v", tag, err)
 				}
 				field.SetInt(int64(durVal))
-			}else {
+			} else {
 				field.SetInt(int64(time.Duration(secVal) * time.Second))
 			}
-		
 
 		case reflect.Int == kind:
 			intVal, err := strconv.Atoi(envVal)
