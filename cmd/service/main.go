@@ -7,9 +7,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/example/five-services/internal/config"
-	"github.com/example/five-services/internal/logger"
-	"github.com/example/five-services/internal/service"
+	"github.com/ialekseychuk/5_services/internal/config"
+	"github.com/ialekseychuk/5_services/internal/logger"
+	"github.com/ialekseychuk/5_services/internal/service"
 )
 
 func main() {

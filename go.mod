@@ -1,4 +1,4 @@
-module github.com/example/five-services
+module github.com/ialekseychuk/5_services
 
 go 1.21
 

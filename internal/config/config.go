@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 	"time"
+
 )
 
 type ServiceConfig struct {
@@ -20,41 +21,55 @@ func LoadConfig() (*ServiceConfig, error) {
 	cfgVal := reflect.ValueOf(cfg).Elem()
 	cfgType := cfgVal.Type()
 
+	durationType := reflect.TypeOf(time.Duration(0))
+
 	for i := 0; i < cfgVal.NumField(); i++ {
 		field := cfgVal.Field(i)
-		tag := cfgType.Field(i).Tag.Get("env")
+		fieldType := cfgType.Field(i)
+		tag := fieldType.Tag.Get("env")
 
 		if tag == "" {
-			fmt.Println("no tag")
 			continue
 		}
 
 		envVal := os.Getenv(tag)
-
 		if envVal == "" {
 			return cfg, fmt.Errorf("environment variable %s is not set", tag)
 		}
 
-		switch field.Kind() {
-		case reflect.String:
-			cfgVal.Field(i).SetString(envVal)
-		case reflect.Int:
+		if field.Type() == durationType {
+	
+			
+		}
+
+		kind := field.Kind()
+
+		switch{
+		case reflect.String == kind:
+			field.SetString(envVal)
+
+		case field.Type() == durationType:
+			secVal, err := strconv.ParseInt(envVal, 10, 64)
+			if err != nil {
+				durVal, err2 := time.ParseDuration(envVal)
+				if err2 != nil {
+					return cfg, fmt.Errorf("environment variable %s is not a valid duration: %v", tag, err)
+				}
+				field.SetInt(int64(durVal))
+			}else {
+				field.SetInt(int64(time.Duration(secVal) * time.Second))
+			}
+		
+
+		case reflect.Int == kind:
 			intVal, err := strconv.Atoi(envVal)
 			if err != nil {
 				return cfg, fmt.Errorf("environment variable %s is not a valid integer", tag)
 			}
-			cfgVal.Field(i).SetInt(int64(intVal))
-		case reflect.Struct:
-			if field.Type() == reflect.TypeOf(time.Duration(0)) {
-				durVal, err := time.ParseDuration(envVal)
-				if err != nil {
-					return cfg, fmt.Errorf("environment variable %s is not a valid duration", tag)
-				}
-				cfgVal.Field(i).Set(reflect.ValueOf(durVal))
-			}
-		
+			field.SetInt(int64(intVal))
+
 		default:
-			return cfg, fmt.Errorf("environment variable %s is not a valid type %v", tag, field.Type())
+			return cfg, fmt.Errorf("unsupported type %s for field %s", field.Type(), fieldType.Name)
 		}
 	}
 	return cfg, nil

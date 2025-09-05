@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/example/five-services/internal/config"
-	"github.com/example/five-services/pkg/random"
-	pb "github.com/example/five-services/proto/gen/proto"
+	"github.com/ialekseychuk/5_services/internal/config"
+	"github.com/ialekseychuk/5_services/pkg/random"
+	pb "github.com/ialekseychuk/5_services/proto/gen/proto"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -145,14 +145,14 @@ func (s *Service) discoverNeighbors() {
 			s.mu.Unlock()
 			continue
 		}
-		
+
 		conn.Close()
 
 		s.mu.Lock()
 		if _, exists := s.neibers[serviceId]; !exists {
 			s.logger.Infof("New service discovered: %s at %s", serviceId, dockerHost)
 			s.neibers[serviceId] = dockerHost
-		
+
 			go s.conectToNeiber(serviceId, dockerHost)
 		}
 		s.mu.Unlock()
@@ -165,7 +165,7 @@ func (s *Service) discoverNeighbors() {
 
 func (s *Service) conectToNeiber(serviceId, dockerHost string) {
 	s.mu.Lock()
-	
+
 	if _, exists := s.connections[serviceId]; exists {
 		s.mu.Unlock()
 		return
