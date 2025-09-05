@@ -130,10 +130,8 @@ func (s *Service) discoverNeighbors() {
 		dockerHost := fmt.Sprintf("%s:%d", serviceId, 5001)
 		conn, err := net.DialTimeout("tcp", dockerHost, time.Second)
 		if err != nil {
-			// Service not available
 			s.logger.Debugf("Service %s not available at %s: %v", serviceId, dockerHost, err)
 
-			// Remove from neighbors if it was previously connected
 			s.mu.Lock()
 			if _, exists := s.neibers[serviceId]; exists {
 				s.logger.Infof("Service %s disconnected", serviceId)
@@ -147,15 +145,14 @@ func (s *Service) discoverNeighbors() {
 			s.mu.Unlock()
 			continue
 		}
-		// Close the connection as we only needed to check if the service is available
+		
 		conn.Close()
 
-		// Service is available, connect if not already connected
 		s.mu.Lock()
 		if _, exists := s.neibers[serviceId]; !exists {
 			s.logger.Infof("New service discovered: %s at %s", serviceId, dockerHost)
 			s.neibers[serviceId] = dockerHost
-			// Connect to the new neighbor
+		
 			go s.conectToNeiber(serviceId, dockerHost)
 		}
 		s.mu.Unlock()
@@ -168,7 +165,7 @@ func (s *Service) discoverNeighbors() {
 
 func (s *Service) conectToNeiber(serviceId, dockerHost string) {
 	s.mu.Lock()
-	// Check if we're already connected
+	
 	if _, exists := s.connections[serviceId]; exists {
 		s.mu.Unlock()
 		return
@@ -226,7 +223,6 @@ func (s *Service) sendMessagesToNeighbors() {
 		})
 		if err != nil {
 			s.logger.Errorf("Error sending message to %s: %v", serviceId, err)
-			// Handle disconnection in a separate goroutine to avoid deadlock
 			go s.handleNeighborDisconnection(serviceId)
 			continue
 		}
@@ -240,7 +236,6 @@ func (s *Service) receiveMessages(serviceID string, stream pb.NeighborService_Co
 		msg, err := stream.Recv()
 		if err != nil {
 			s.logger.Errorf("Error receiving message from %s: %v", serviceID, err)
-			// Handle disconnection in a separate goroutine to avoid deadlock
 			go s.handleNeighborDisconnection(serviceID)
 			return
 		}
@@ -261,18 +256,12 @@ func (s *Service) handleNeighborDisconnection(serviceID string) {
 		delete(s.connections, serviceID)
 	}
 
-	if _, exists := s.streams[serviceID]; exists {
-		// Note: CloseSend() is for client-side streams, for bidirectional streams
-		// we should just delete the stream reference
-		delete(s.streams, serviceID)
-	}
+	delete(s.streams, serviceID)
 }
 
-// Communicate implements the bidirectional streaming RPC
 func (s *Service) Communicate(stream pb.NeighborService_CommunicateServer) error {
 	s.logger.Info("Established communication stream with neighbor")
 
-	// Handle incoming messages
 	for {
 		msg, err := stream.Recv()
 		if err != nil {
@@ -282,7 +271,6 @@ func (s *Service) Communicate(stream pb.NeighborService_CommunicateServer) error
 
 		s.logger.Infof("Received message '%s' from %s", msg.Content, msg.Sender)
 
-		// Send acknowledgment
 		response := &pb.Message{
 			Sender:    s.cfg.ID,
 			Content:   fmt.Sprintf("ACK: %s", msg.Content),
