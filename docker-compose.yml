@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  service1:
+    build: .
+    container_name: service1
+    environment:
+      - SERVICE_ID=service1
+      - SERVICE_PORT=5001
+      - POLLING_PERIOD_SECONDS=10
+      - MESSAGE_PERIOD_SECONDS=1
+    ports:
+      - "5001:5001"
+    networks:
+      - services_network
+
+  service2:
+    build: .
+    container_name: service2
+    environment:
+      - SERVICE_ID=service2
+      - SERVICE_PORT=5001
+      - POLLING_PERIOD_SECONDS=10
+      - MESSAGE_PERIOD_SECONDS=1
+    ports:
+      - "5002:5001"
+    networks:
+      - services_network
+
+  service3:
+    build: .
+    container_name: service3
+    environment:
+      - SERVICE_ID=service3
+      - SERVICE_PORT=5001
+      - POLLING_PERIOD_SECONDS=10
+      - MESSAGE_PERIOD_SECONDS=1
+    ports:
+      - "5003:5001"
+    networks:
+      - services_network
+
+  service4:
+    build: .
+    container_name: service4
+    environment:
+      - SERVICE_ID=service4
+      - SERVICE_PORT=5001
+      - POLLING_PERIOD_SECONDS=10
+      - MESSAGE_PERIOD_SECONDS=1
+    ports:
+      - "5004:5001"
+    networks:
+      - services_network
+
+  service5:
+    build: .
+    container_name: service5
+    environment:
+      - SERVICE_ID=service5
+      - SERVICE_PORT=5001
+      - POLLING_PERIOD_SECONDS=10
+      - MESSAGE_PERIOD_SECONDS=1
+    ports:
+      - "5005:5001"
+    networks:
+      - services_network
+
+networks:
+  services_network:
+    driver: bridge

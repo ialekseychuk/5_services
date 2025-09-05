@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./proto";
+
+service NeighborService {
+  rpc Communicate(stream Message) returns (stream Message);
+}
+
+message Message {
+  string sender = 1;
+  string content = 2;
+  int64 timestamp = 3;
+}
